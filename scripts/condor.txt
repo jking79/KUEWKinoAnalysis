@@ -1,0 +1,1 @@
+python CONDOR_unlt3_submit.py -list path/to/list.list --sms (for signal samples)

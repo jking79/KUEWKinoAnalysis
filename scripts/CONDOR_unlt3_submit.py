@@ -9,9 +9,9 @@ home = os.environ['HOME']
 #######################################
 RUN_DIR = pwd
 TEMP = pwd
-EXE  = "MakeReducedNtuple.x"
+EXE  = "/home/t3-ku/janguian/crogan_ntuplizer/KUEWKinoAnalysis/MakeReducedNtuple.x"
 #EXE  = "MakeEventCount.x"
-OUT  = "/home/t3-ku/crogan/NTUPLES/Processing/"
+OUT  = "/home/t3-ku/janguian/NTUPLES/Processing/"
 #OUT = pwd
 LIST = "default.list"
 QUEUE = ""
