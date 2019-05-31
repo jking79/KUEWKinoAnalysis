@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
   char inputFolderName[400];
   char outputFileName[400];
   char TreeName[400];
+  char DataSet[400];
   char FileTag[400];
 
   bool DO_FILE = false;
@@ -42,9 +43,9 @@ int main(int argc, char* argv[]) {
   if ( argc < 2 ){
     cout << "Error at Input: please specify an input file name, a list of input ROOT files and/or a folder path"; 
     cout << " and an output filename:" << endl; 
-    cout << "  Example:      ./MakeEventCount.x -ifile=input.root -ofile=output.root -tag=sample_tag"  << endl;
-    cout << "  Example:      ./MakeEventCount.x -ilist=input.list -ofile=output.root -tag=sample_tag"  << endl;
-    cout << "  Example:      ./MakeEventCount.x -ifold=folder_path -ofile=output.root -tag=sample_tag -tree=treename --sms" << endl;
+    cout << "  Example:      ./MakeEventCount_NANO.x -ifile=input.root -ofile=output.root -dataset=dataset_name -filetag=sample_tag"  << endl;
+    cout << "  Example:      ./MakeEventCount_NANO.x -ilist=input.list -ofile=output.root -dataset=dataset_name -filetag=sample_tag"  << endl;
+    cout << "  Example:      ./MakeEventCount_NANO.x -ifold=folder_path -ofile=output.root -dataset=dataset_name -filetag=sample_tag -tree=treename --sms" << endl;
     
     return 1;
   }
@@ -66,7 +67,8 @@ int main(int argc, char* argv[]) {
       DO_TREE = true;
     }
     if (strncmp(argv[i],"-ofile",6)==0) sscanf(argv[i],"-ofile=%s", outputFileName);
-    if (strncmp(argv[i],"-tag",4)==0)   sscanf(argv[i],"-tag=%s", FileTag);
+    if (strncmp(argv[i],"-dataset",8)==0)   sscanf(argv[i],"-dataset=%s", DataSet);
+    if (strncmp(argv[i],"-filetag",8)==0)   sscanf(argv[i],"-filetag=%s", FileTag);
     if (strncmp(argv[i],"--sms",5)==0)  DO_SMS = true;
   }
 
@@ -137,6 +139,13 @@ int main(int argc, char* argv[]) {
    double Nevent = 0.;
    double Nweight = 0.;
 
+   int MP = 0;
+   int MC = 0;
+   int PDGID;
+   std::vector<std::pair<int,int> > masses;
+   std::map<std::pair<int,int>,double > mapNevent;
+   std::map<std::pair<int,int>,double > mapNweight;
+   
    int NEVENT = chain->GetEntries();
    cout << "TOTAL of " << NEVENT << " entries" << endl;
    for(int e = 0; e < NEVENT; e++){
@@ -153,10 +162,14 @@ int main(int argc, char* argv[]) {
   TFile* fout = new TFile(string(outputFileName).c_str(),"RECREATE");
   TTree* tout = (TTree*) new TTree("EventCount", "EventCount");
   
-  string dataset = string(FileTag);
+  string dataset = string(DataSet);
+  string filetag = string(FileTag);
   tout->Branch("Nevent", &Nevent);
   tout->Branch("Nweight", &Nweight);
+  tout->Branch("filetag", &filetag);
   tout->Branch("dataset", &dataset);
+  tout->Branch("MP", &MP);
+  tout->Branch("MC", &MC);
  
   tout->Fill();
 
