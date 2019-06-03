@@ -30,7 +30,8 @@ elif bg2016 == True:
 	path = '/home/t3-ku/janguian/stopNtuple_Skims/All_Bkg_2016/'
 elif sms == True:
 	path = '/home/t3-ku/janguian/stopNtuple_Skims/All_Sig/'
-
+else:
+	path = str(args[1])
 
 print "path selected: ", path
 
