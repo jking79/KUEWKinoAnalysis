@@ -307,7 +307,7 @@ public :
    TBranch        *b_dphiSI;   //!
    TBranch        *b_dphiISRI;   //!
 
-   ewk(std::string filename, TTree *tree=0 );
+   ewk(std::string filename, std::string treename, TTree *tree=0 );
    virtual ~ewk();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -320,12 +320,14 @@ public :
 
 	//std::string filename{};
 	//"DYJetsToLL_M-4to50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8_Fall17.root"
+	//default treename:
+	//"KUAnalysis"
 };
 
 #endif
 
 #ifdef ewk_cxx
-ewk::ewk(std::string filename ,TTree *tree ) : fChain(0)
+ewk::ewk(std::string filename, std::string treename, TTree *tree ) : fChain(0)
 {
 	
 // if parameter tree is not specified (or zero), connect the file
@@ -335,7 +337,7 @@ ewk::ewk(std::string filename ,TTree *tree ) : fChain(0)
       if (!f || !f->IsOpen()) {
          f = new TFile(filename.c_str());
       }
-      f->GetObject("KUAnalysis",tree);
+      f->GetObject(treename.c_str(),tree);
 
    }
    Init(tree);
