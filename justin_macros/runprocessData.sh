@@ -14,9 +14,9 @@ root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/WJets2017.root\",\"K
 root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/WW2017.root\",\"KUAnalysis\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/WW2017ana.root\",\"WW17\"\)
 root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/WZ2017.root\",\"KUAnalysis\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/WZ2017ana.root\",\"WZ17\"\)
 
-root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"600_300\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZana.root\",\"TCWZ300\"\)
-root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"175_145\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZana.root\",\"TCWZ30\"\)
-root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"150_147\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZana.root\",\"TCWZ3\"\)
+root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"600_300\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZ300ana.root\",\"TCWZ300\"\)
+root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"175_145\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZ30ana.root\",\"TCWZ30\"\)
+root -l -q -b processData.C\(\"/home/t3-ku/janguian/NTUPLES/TChiWZ.root\",\"150_147\",\"/home/t3-ku/janguian/NTUPLES/SingleAnalyzedNtuple/TChiWZ3ana.root\",\"TCWZ3\"\)
 
 
 
