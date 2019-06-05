@@ -7,7 +7,7 @@
 //global hists?
 class plotter{
  public:
- plotter( ewk& mclass, TFile*& outfile, std::string tag);
+ plotter( ewk& mclass, TFile*& outfile, std::string tag, int category);
  void initHists(std::string tag);
  std::string _tag;
  TFile* f;
@@ -76,7 +76,7 @@ bool isOSSFPair(ewk& mclass){
 		if( mclass.Nmu ==2 || mclass.Nele ==2 ){
 			int qtot = 0;
 			for(unsigned int i=0; i< mclass.Charge_lep->size(); i++){
-				qtot += mclass.Charge_lep.at(i);
+				qtot += mclass.Charge_lep->at(i);
 			}
 			if( qtot == 0){
 				return true;
@@ -90,7 +90,7 @@ TLorentzVector* get4vec(double pt, double eta, double phi, double m){
 	double py = pt*sin(phi);
 	double pz = pt*sinh(eta);
 	TLorentzVector *v = new TLorentzVector();
-	v.SetXYZM( px,py,pz,m );
+	v->SetXYZM( px,py,pz,m );
 	return v;	
 }
 TLorentzVector* add4vecs( vector<double> pt, vector<double> eta, vector<double> phi, vector<double> m){
@@ -131,7 +131,7 @@ plotter::plotter( ewk& mclass, TFile*& outfile, std::string tag, int category){
 	   		hmet->Fill( mclass.MET, mclass.weight );
 			hn_jets->Fill( mclass.Njet, mclass.weight);				
 
-			TLorentzVector* ll = add4vecs( *(mclass.PT_lep), *(mclass.Eta_lep), *(mclass.Phi_lep), *(M_lep) );
+			TLorentzVector* ll = add4vecs( *(mclass.PT_lep), *(mclass.Eta_lep), *(mclass.Phi_lep), *(mclass.M_lep) );
 		
 			hm_ll->Fill(ll->M(), mclass.weight);
 
