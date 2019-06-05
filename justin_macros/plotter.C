@@ -148,7 +148,7 @@ plotter::plotter( ewk& mclass, TFile*& outfile, std::string tag, int category){
 
 
 	std::cout<<"Cutflow for "<<tag<<" "<<category<<" "<<cut0<<" "<<cut1<<std::endl;
-	plot(hmet, "MET", tag, 0);
+	//plot(hmet, "MET", tag, 0);
 	
 
 }
