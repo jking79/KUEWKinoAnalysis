@@ -12,6 +12,11 @@ void processData(std::string infilename, std::string treename, std::string outfi
 	std::cout<<"Using Tag: "<<tag<<std::endl;
 	ewk mclass(infilename, treename);
 	TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
-	plotter( mclass, outfile, tag);
+	tag = tag + "I";
+	plotter( mclass, outfile, tag, 0);
+    tag = tag + "I";
+	plotter( mclass, outfile, tag, 1);
+	tag = tag+ "I";
+	plotter( mclass, outfile, tag, 2); 
 	outfile->Write();
 }
