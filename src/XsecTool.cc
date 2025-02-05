@@ -45,9 +45,9 @@ double XsecTool::GetXsec_SMS(const std::string& dataset, double MP) const {
       label = "C1N2_wino";
       if(dataset.find("ZToLL")!= std::string::npos)
 	BR = 0.10099; 
-    }
+    } 
     if((dataset.find("TChiWH")!=std::string::npos) ||
-       (dataset.find("N2C1")!=std::string::npos)){
+       (dataset.find("HinoN2C1")!=std::string::npos)){
       label = "C1N2_hino";
       if(dataset.find("HToGG")!= std::string::npos)
 	BR *= 0.00227; 
@@ -376,6 +376,8 @@ std::map<std::string,double> XsecTool::InitMap_Xsec_BKG(){
   Label2Xsec["TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8"] = 0.4062;
   Label2Xsec["TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8"] = 0.2529;
   Label2Xsec["TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8"] = 0.5297;
+  Label2Xsec["TTWW_TuneCUETP8M2T4_13TeV-madgraph-pythia8"] = 0.007834;
+  Label2Xsec["TTWW_TuneCP5_13TeV-madgraph-pythia8"] = 0.006992;
 
   Label2Xsec["TTWH_TuneCP5_13TeV-madgraph-pythia8"] = 0.001141;
   Label2Xsec["TTWW_TuneCP5_13TeV-madgraph-pythia8"] = 0.006979;

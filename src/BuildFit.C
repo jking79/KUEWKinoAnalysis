@@ -18,6 +18,9 @@
 
 using namespace std;
 
+vector<string> superBins = {"Ch0L_0_0jge2svS_ge1jISR_PTISR0_gamT0_SVeta0","Ch0L_0_4j1bS_ge1j0bISR_PTISR1_gamT0","Ch0L_0_4j1bS_ge1j0bISR_PTISR1_gamT1","Ch0L_0_4jge2bS_ge1jISR_PTISR1_gamT0","Ch0L_0_4jge2bS_ge1jISR_PTISR1_gamT1","Ch0L_0_ge5j1bS_ge1j0bISR_PTISR1_gamT0","Ch0L_0_ge5jge2bS_ge1jISR_PTISR1_gamT0","Ch1L_lm_gold_0jge1svS_ge1jISR_PTISR0_gamT0_SVeta0","Ch1L_lpm_gold_1jge1svS_ge1jISR_PTISR0_gamT0_SVeta0","Ch1L_lpm_gold_2j1bS_ge1j0bISR_PTISR1_gamT1","Ch1L_lpm_gold_2j2bS_ge1jISR_PTISR1_gamT1","Ch1L_lpm_gold_3j1bS_ge1j0bISR_PTISR1_gamT1","Ch1L_lpm_gold_3jge2bS_ge1jISR_PTISR1_gamT1","Ch1L_lpm_gold_ge4j1bS_ge1j0bISR_PTISR1_gamT1","Ch1L_lpm_gold_ge4jge2bS_ge1jISR_PTISR1_gamT1","Ch1L_mum_gold_0j0svS_ge1j0bISR_PTISR1","Ch2L_OSelel_gold_0j0svS_ge1j0bISR_PTISR1_gamT0","Ch2L_OSelel_gold_0j0svS_ge1j0bISR_PTISR1_gamT1","Ch2L_OSelmu_gold_0j0svS_ge1j0bISR_PTISR1_gamT1","Ch2L_OSmumu_gold_0j0svS_ge1j0bISR_PTISR1_gamT0","Ch2L_OSmumu_gold_0j0svS_ge1j0bISR_PTISR1_gamT1","Ch2L_Zstar_gold_1j0bS_ge1j0bISR_PTISR1_gamT0","Ch2L_Zstar_gold_1j0bS_ge1j0bISR_PTISR1_gamT1","Ch2L_Zstar_gold_1j1bS_ge1j0bISR_PTISR1_gamT1","Ch2L_Zstar_gold_ge2j0bS_ge1j0bISR_PTISR1_gamT0","Ch2L_Zstar_gold_ge2j0bS_ge1j0bISR_PTISR1_gamT1","Ch2L_Zstar_gold_ge2jge1bS_ge1j0bISR_PTISR1_gamT1","Ch2L_ll_gold_0jge1svS_ge1jISR_PTISR0_gamT0_SVeta0","Ch2L_noZ_gold_1j0bS_ge1j0bISR_PTISR1_gamT1","Ch2L_noZ_gold_1j1bS_ge1j0bISR_PTISR1_gamT1","Ch2L_noZ_gold_ge2j0bS_ge1j0bISR_PTISR1_gamT1","Ch2L_noZ_gold_ge2jge1bS_ge1j0bISR_PTISR1_gamT1","Ch3L_SS_gold_inclS_ge1jISR_PTISR0","Ch3L_Zstar_gold_0jS_ge1jISR_PTISR0","Ch3L_Zstar_gold_ge1jS_ge1jISR_PTISR0","Ch3L_noZ_gold_0jS_ge1jISR_PTISR0","Ch3L_noZ_gold_ge1jS_ge1jISR_PTISR0"};
+
+
 int main(int argc, char* argv[]) {
   string InputFile = "test/FitInput_test.root";
   string OutputFold = "BuildFit_output";
@@ -46,6 +49,8 @@ int main(int argc, char* argv[]) {
   double xsec_norm = -999.0;
 
   bool workspace = false;
+  bool chanMask = false;
+  string chanMaskCmd;
 
   bool doMCstats = false;
 
@@ -60,6 +65,14 @@ int main(int argc, char* argv[]) {
     }
     if(strncmp(argv[i],"-w", 2) == 0){
       workspace = true;
+    }
+    if(strncmp(argv[i],"--maskChannels", 14) == 0){
+      chanMask = true;
+      i++;
+      chanMaskCmd = string(argv[i]);
+    }
+    if(strncmp(argv[i],"-m", 2) == 0){
+      chanMask = true;
     }
     if(strncmp(argv[i],"--help", 6) == 0){
       bprint = true;
@@ -193,6 +206,7 @@ int main(int argc, char* argv[]) {
     cout << "   +MCstats            adds autoMCStats uncertainties" << endl;
     cout << "   -sepchan            make datacards for each group of channels separately" << endl;
     cout << "   --workspace(-w)     also build workspaces (note: faster not to, and run message)" << endl;
+    cout << "   --maskChannels [method] mask channels of model independent signal regions (superbins)" << endl;
     cout << "   --batch             for running inside a batch job" << endl;
     cout << "   --connect           for running inside a batch job on CMS connect" << endl;
 
@@ -205,19 +219,22 @@ int main(int argc, char* argv[]) {
   
   string Era = std::to_string(year);
   string Ana = "KUEWKino";
-
+  verbose=false;
   FitReader FIT(InputFile);
   if(verbose){
     cout << "Input file " << InputFile << " contains:" << endl;
-    FIT.PrintCategories();
+  //  FIT.PrintCategories();
     FIT.PrintProcesses();
   }
 
   ProcessList processes = FIT.GetProcesses().FilterOR(proc_to_add); 
   if(addBkg)
     processes += FIT.GetProcesses().Filter(kBkg);
-  if(addSig)
+  if(addSig){
     processes += FIT.GetProcesses().Filter(kSig);
+    //auto remove genMET
+    //processes = processes.Remove("METUncer_GenMET");
+    }
   processes = processes.RemoveOR(proc_to_rem);
 
   // keep only the process-by-process fakes
@@ -245,9 +262,9 @@ int main(int argc, char* argv[]) {
     systematics = FIT.GetSystematics().FilterOR(sys_to_add);
   if(systematics.GetN() > 0)
     systematics = systematics.RemoveOR(sys_to_rem);
-//cout << "systematics" << endl;
-//  for(int s = 0; s < systematics.GetN(); s++)
-//    cout << systematics[s].Label() << endl;
+cout << "systematics" << endl;
+  for(int s = 0; s < systematics.GetN(); s++)
+    cout << systematics[s].Label() << endl;
 
 CategoryTree CT_Fakes1L;
 vector<const CategoryTree*> catTrees;
@@ -266,8 +283,13 @@ map<string,VC> catBins;
   
   // prepare processes
   ProcessList signals = processes.Filter(kSig);
-
+  //signals = signals.Remove("METUncer_GenMET");
+   std:cout<<"PLIST\n";
+  signals.Print();
   ProcessList backgrounds = processes.Filter(kBkg); 
+  
+  ProcessList splusb = signals;
+  splusb += backgrounds;
 
   // prepare channels/categories
   map<string,CategoryList> chanMap;
@@ -380,7 +402,28 @@ cb.AddProcesses({"*"}, {Ana}, {Era}, {ch}, {proc.Name()}, cats, false);
   CONFIG.AddRareNorms(bkg_rare, 0.4, cb, processes);
   
   CONFIG.AddCommonSys(cb, processes);
-  CONFIG.AddFakeLeptonSys(cb, processes);
+
+	//splitting these out for unblinding tests
+ CONFIG.AddFakeLeptonSys(cb, processes);//the original function call
+
+//Trial1 split globals by process, keep rest the same
+// std::cout<<"Splitting global fake between ttbar and other\n";
+//  CONFIG.AddFakeGlobal(cb, processes, 1);
+//  CONFIG.AddFakeGlobal(cb, processes, 2);
+//  CONFIG.AddIDISObron(cb, processes);
+//  CONFIG.AddSIP3Dslvr(cb, processes);
+
+//Trial2 split idiso by L,J, keep rest the same
+// std::cout<<"splitting idiso by L and J\n";  
+//  CONFIG.AddFakeGlobal(cb, processes, 0);
+//  CONFIG.AddIDISObron_splitSJet(cb, processes);
+//  CONFIG.AddSIP3Dslvr(cb, processes);
+
+//Trial 3 do the normal fake systs but add bronz and slver rates (assigned to nonfake)
+// std::cout<<"applying bron and silver rate\n";
+//  CONFIG.AddFakeLeptonSys(cb,processes);
+//  CONFIG.AddSlvrBronGlobal(cb,processes);
+
   CONFIG.AddSVSys(cb, processes);
   ProcessList proc_LF_Fakes = proc_fakes;
   proc_LF_Fakes = proc_LF_Fakes.Filter("f1");
@@ -398,6 +441,12 @@ cb.AddProcesses({"*"}, {Ana}, {Era}, {ch}, {proc.Name()}, cats, false);
   ProcessList bkg_noQCD = backgrounds.Remove("QCD");
   ProcessList Top_only = backgrounds.FilterOR(top);
   ProcessList QCD_only = backgrounds.Filter("QCD");
+
+  //didint work
+  //ProcessList bkg_noQCD_sig = bkg_noQCD;
+  //bkg_noQCD_sig  += signals;
+  ProcessList all_noQCD = processes.Filter("QCD");
+
   //CONFIG.AddBJetSys(cb, backgrounds, "");
   //CONFIG.AddPTISRSys(cb, backgrounds, "");
   //CONFIG.AddgamTSys(cb, backgrounds, "");
@@ -407,14 +456,25 @@ cb.AddProcesses({"*"}, {Ana}, {Era}, {ch}, {proc.Name()}, cats, false);
   CONFIG.Add1LBJetSys(cb, bkg_noTop, "other_");
   CONFIG.Add1LBJetSys(cb, Top_only, "top_");
 
-  CONFIG.Add0LPTISRSys(cb, bkg_noQCD, "other_");
+  //try adding signals to ptisr systematics
+  bool applyPTISRToSig=true;
+  std::cout<<"Applying PTISR Systematics to Signal: "<< applyPTISRToSig <<"\n";
+  CONFIG.Add0LPTISRSys(cb, bkg_noQCD, "other_",applyPTISRToSig);
   CONFIG.Add0LPTISRSys(cb, QCD_only, "QCD_");
-  CONFIG.Add1LPTISRSys(cb, backgrounds, "");
+  CONFIG.Add1LPTISRSys(cb, backgrounds, "",applyPTISRToSig);
+  CONFIG.Add2LPTISRSys(cb, backgrounds, "",applyPTISRToSig);
+  
+//  CONFIG.Add0LPTISRSys(cb, all_noQCD , "other_");
+//  CONFIG.Add0LPTISRSys(cb, QCD_only, "QCD_");
+//  CONFIG.Add1LPTISRSys(cb, splusb, "");
+//  CONFIG.Add2LPTISRSys(cb, splusb, "");
 
-  CONFIG.Add0LgamTSys(cb, bkg_noQCD, "other_");
+  bool applyGamTToSig=true;
+  std::cout<<"Applying gamT Systematics to Signal: "<< applyGamTToSig <<"\n";
+  CONFIG.Add0LgamTSys(cb, bkg_noQCD, "other_",applyGamTToSig);
   CONFIG.Add0LgamTSys(cb, QCD_only, "QCD_");
-  CONFIG.Add1LgamTSys(cb, backgrounds, "");
-  CONFIG.AddCommongamTSys(cb, backgrounds);
+  CONFIG.Add1LgamTSys(cb, backgrounds, "",applyGamTToSig);
+  CONFIG.AddCommongamTSys(cb, backgrounds,applyGamTToSig);
 
   //CONFIG.AddLeptonQualityNormSys(cb, processes);
   //CONFIG.AddSJetLeptonQualityNormSys(cb, processes);
@@ -427,11 +487,14 @@ cb.AddProcesses({"*"}, {Ana}, {Era}, {ch}, {proc.Name()}, cats, false);
   WjetsDY0L += "ZDY";
   SystDict smW;
   SystDict smW0L;
+
+  bool applyWjetsToSig = false;
+  std::cout<<"Applying Wjets Systematics to Signal: "<< applyWjetsToSig <<"\n";
   CONFIG.initSystDictW(smW);
-  CONFIG.AddNormHierarchy( smW, Wjets, cb,processes) ;
+  CONFIG.AddNormHierarchy( smW, Wjets, cb,processes, applyWjetsToSig) ;
 
   CONFIG.initSystDictW0L(smW0L);
-  CONFIG.AddNormHierarchy( smW0L, WjetsDY0L, cb, processes);
+  CONFIG.AddNormHierarchy( smW0L, WjetsDY0L, cb, processes, applyWjetsToSig);
 
 //   CONFIG.AddSJetNormSys("Wjets", Wjets, cb, processes);
 
@@ -441,8 +504,12 @@ cb.AddProcesses({"*"}, {Ana}, {Era}, {ch}, {proc.Name()}, cats, false);
   ttbar += "ttbar";
   SystDict smtt;
  // ttbar += "ST";
+  
+//turn of sig norm sys for b128
+  bool applyTtbarToSig = true;
+  std::cout<<"Applying ttbar Systematics to Signal: "<< applyTtbarToSig <<"\n";
    CONFIG.initSystDictTtbar(smtt);
-   CONFIG.AddNormHierarchy( smtt, ttbar, cb, processes) ;
+   CONFIG.AddNormHierarchy( smtt, ttbar, cb, processes, applyTtbarToSig ) ;
 //   CONFIG.AddSJetNormSys("ttbar", ttbar, cb, processes);
 
   VS QCD;
@@ -485,8 +552,8 @@ DB += "DB";
 CONFIG.AddSJetNormSys("DB",DB,cb, processes);
 */
 
-
-  //cb.PrintSysts();
+///PRINT TABLE OF ALL SYSTS AND MAP
+//  cb.PrintSysts();
 
  using ch::syst::SystMap;
   using ch::syst::era;
@@ -508,9 +575,51 @@ else cout << "Nominal signal cross section: " << xsec_norm << endl;
     cout << "+ Adding shape systematics" << endl;
     for(int s = 0; s < Nsys; s++){  
       Systematic& sys = systematics[s];
-      if(shapeToNorm.Contains(sys)){ 
-        CONFIG.AddShapeSysAsNorm(sys,cb,FIT);
-        continue;
+       cout<< " -- Assessing Systematic: "<<sys.Label()<< endl;
+      //if(sys.Label() == "BTAGHF_SF") continue;//allow correlated factor
+      //if(sys.Label() == "BTAGLF_SF") continue;
+      //if(sys.Label() == "MuF_SF") continue;//for now do not year split
+      //if(sys.Label() == "MuR_SF") continue;
+      //if(sys.Label() == "PDF_SF") continue;
+      //if(sys.Label() == "MET_TRIG_SF") continue; //not ready for primetime
+      //if(sys.Label() == "elID_SF") continue;//do not year split
+      //if(sys.Label() == "elIso_SF") continue;
+      //if(sys.Label() == "elSIP_SF") continue;
+      //if(sys.Label() == "elVL_SF") continue;
+      //if(sys.Label() == "muID_SF") continue;
+      //if(sys.Label() == "muIso_SF") continue;
+      //if(sys.Label() == "muID_SF") continue;
+      //if(sys.Label() == "muIso_SF") continue; 
+      //if(sys.Label() == "muSIP_SF") continue;
+      //if(sys.Label() == "muVL_SF") continue;
+      //if(sys.Label() == "JESUncer_Total") continue;//no correlated factor (this will be year labeled in the sys list)
+      //if(sys.Label() == "JERUncer_Total") continue;
+      //if(sys.Label() == "METUncer_UnClust") continue;
+
+        cout<<" Systematic passed allowed criteria " << endl;
+      //cout<< "Systematic adding as norm: "<<sys.Label()<< endl;
+      if(shapeToNorm.Contains(sys)){
+	cout<< "Systematic adding as norm: "<<sys.Label()<< endl; 
+	
+	if( (sys.Label() == "BTAGHF_SF") || (sys.Label() == "BTAGLF_SF") ){
+	    CONFIG.AddShapeSysAsNorm(sys,cb,FIT,backgrounds,sys.Label()+"_corr");
+	    continue;	    
+
+	}else if( (sys.Label() == "JESUncer_Total") || (sys.Label() == "JERUncer_Total") || (sys.Label() =="METUncer_UnClust") || (sys.Label() == "METUncer_GenMET")  ){
+	    //apply these to signal, but not bkg because those will have year dependent labels added at bpog step
+	    CONFIG.AddShapeSysAsNorm(sys,cb,FIT,signals,sys.Label(), 1., kSig);
+	}
+	    //make separate sytematic for  bkg, but not genMET. also reject correlated systematic for JES JER MET
+	    if( sys.Label() != "METUncer_GenMET" && sys.Label() != "JESUncer_Total" && sys.Label() != "JERUncer_Total" && sys.Label() != "METUncer_UnClust"){
+	    	if( (sys.Label().find("16") != std::string::npos) || (sys.Label().find("17") != std::string::npos) || (sys.Label().find("18") != std::string::npos) ){
+			std::cout<<"found year split special systematic "<< sys.Label() <<"\n";
+		  CONFIG.AddCombinedShapeSysAsNorm(sys,cb,FIT,backgrounds,sys.Label(),1.,kBkg);
+		}else{
+		  CONFIG.AddShapeSysAsNorm(sys,cb,FIT,backgrounds,sys.Label(),1.,kBkg);
+	    
+		}
+	    }
+	continue;
       }
       ProcessList proc_sys;
 
@@ -651,7 +760,17 @@ else cout << "Nominal signal cross section: " << xsec_norm << endl;
 
       cb.cp().mass({m, "*"})
 	.WriteDatacard(fold+"/datacard.txt", output);
-    }
+    if(chanMask){
+		string oname = fold+"/T2W_with_channelmask.sh";
+		std::ofstream out;
+		out.open(oname);
+		out << "combineTool.py -M T2W -i datacard.txt -o ws.root -m " << m << " --channel-masks \n";
+		out << "combine ws.root -M " << chanMaskCmd << " -m " << m << " --setParameters ";
+		for(int i = 0; i < superBins.size(); i++)		
+			out << "mask_"<< superBins[i] << "=1 ";
+		out.close();
+	}
+	}
   }
 
   // datacard/workspace for each channel
@@ -711,7 +830,7 @@ else cout << "Nominal signal cross section: " << xsec_norm << endl;
   {
    cmd = "combineTool.py -M T2W -i "+OutputFold+"datacards/*/*/*/datacard.txt -o workspace.root --parallel 4";
 
-   string cmd_condor = "combineTool.py -M T2W -i "+OutputFold+"datacards/*/*/*/datacard.txt -o workspace.root --job-mode connect --input-file "+OutputFold+InputFile+" --sub-opts='+ProjectName=\"cms.org.ku\" \n request_memory = 8 GB \n' ";
+   string cmd_condor = "combineTool.py -M T2W -i "+OutputFold+"datacards/*/*/*/datacard.txt -o workspace.root --job-mode connect --input-file "+OutputFold+InputFile+" --sub-opts='+ProjectName=\"cms.org.cern\" \n request_memory = 8 GB \n' ";
   }
 
   string cmd_condor_CERN = "--sub-opts='+JobFlavour=\"espresso\" \\n request_memory = 4 GB'";

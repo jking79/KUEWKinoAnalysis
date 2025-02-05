@@ -28,6 +28,13 @@ public:
 
   void AddCommonSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddFakeLeptonSys(ch::CombineHarvester& cb, ProcessList& processes);
+
+  void AddFakeGlobal(ch::CombineHarvester& cb, ProcessList& processes, int option);
+  void AddIDISObron(ch::CombineHarvester& cb, ProcessList& processes);
+  void AddSIP3Dslvr(ch::CombineHarvester& cb, ProcessList& processes);
+  void AddIDISObron_splitSJet(ch::CombineHarvester& cb, ProcessList& processes);
+  void AddSlvrBronGlobal(ch::CombineHarvester& cb, ProcessList& processes);
+
   void AddSVSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddBJetSys(ch::CombineHarvester& cb, ProcessList& processes);
   void Add0LBJetSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
@@ -36,22 +43,23 @@ public:
   void AddFakeSSSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddKinematicSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void Add0LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void Add1LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void AddgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void Add0LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void Add1LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label);
-  void AddCommongamTSys(ch::CombineHarvester& cb, ProcessList& processes);
+  void Add0LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void Add1LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void Add2LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void AddgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void Add0LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void Add1LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig=false);
+  void AddCommongamTSys(ch::CombineHarvester& cb, ProcessList& processes, bool applyToSig=false);
   void AddSJetNormSys(const string& label, VS& procs, ch::CombineHarvester& cb, ProcessList& processes);
   void AddQCDNormSys(const string& label, VS& procs, ch::CombineHarvester& cb, ProcessList& processes);
   void AddLeptonQualityNormSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddSJetLeptonQualityNormSys(ch::CombineHarvester& cb, ProcessList& processes);
   void AddLeptonCategoryNormSys(ch::CombineHarvester& cb, ProcessList& processes);
 
-  void AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT);
-
+ void AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT, ProcessList& plist, std::string name="", double scale=1, ProcessType procSet=kBkg);
+ void AddCombinedShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT, ProcessList& plist, std::string name="", double scale=1, ProcessType ptype=kBkg);
   void AddLNormSys(const string& label, VS& procs, ch::CombineHarvester& cb, ProcessList& processes, std::vector<std::string> Nlep, double errorInit);
-  void AddNormHierarchy( SystDict& sm, VS& proc, ch::CombineHarvester& cb, ProcessList& processes);
+  void AddNormHierarchy( SystDict& sm, VS& proc, ch::CombineHarvester& cb, ProcessList& processes, bool applyToSig=false);
   
   void appSystDict( SystDict& sm , std::string label, std::vector<int> list);
   void initSystDictW( SystDict& sm );

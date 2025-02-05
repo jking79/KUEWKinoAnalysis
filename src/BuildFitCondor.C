@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
   int  year    = 2017;
   double xsec_norm = -999.0;
 
+  bool chanMask = false;
+  string chanMaskMethod;
+
   bool doMCstats = false;
 
   bool doSepChan = false;
@@ -146,6 +149,11 @@ int main(int argc, char* argv[]) {
     if(strncmp(argv[i],"+MCstats", 8) == 0){
       doMCstats = true;
     }
+    if(strncmp(argv[i],"--maskChannels", 14) == 0){
+      chanMask = true;
+      i++;
+      chanMaskMethod += string(argv[i]);
+    }
     if(strncmp(argv[i],"-sepchan", 8) == 0){
       doSepChan = true;
     }
@@ -203,6 +211,7 @@ int main(int argc, char* argv[]) {
     cout << "   +MCstats            adds autoMCStats uncertainties" << endl;
     cout << "   -sepchan            make datacards for each group of channels separately" << endl;
     cout << "   --workspace(-w)     also build workspaces (note: faster not to, and run message)" << endl;
+    cout << "   --maskChannels      mask channels of model independent signal region (superbins)" << endl;
     cout << "Example: ./BuildFitCondor.x ++bkg +proc T2tt ++cat ++chan --connect -o name_of_BuildFit_output_folder/ -i name_of_BFI_root_file.root " << endl;
 
     return 0;
@@ -286,6 +295,8 @@ int main(int argc, char* argv[]) {
     BuildFitCmd += "-sepchan ";
   if(connect)
     BuildFitCmd += "--connect ";
+  if(chanMask)
+    BuildFitCmd += "--maskChannels "+chanMaskMethod+" ";
   BuildFitCmd += Form("--setXsec %f ", xsec_norm);
  
   string SrcFold = OutputFold+"/src/";
@@ -374,12 +385,17 @@ void WriteScriptConnect(const string& src_name,
   file << "log = "    << log_name << ".log" << endl;
   file << "Requirements = (Machine != \"red-node000.unl.edu\") && (Machine != \"red-c2325.unl.edu\")" << endl;
   file << "request_memory = 4 GB" << endl;
-  file << "transfer_input_files = /uscms/home/z374f439/nobackup/whatever_you_want/sandbox-CMSSW_10_6_5-6403d6f.tar.bz2,"+command.substr(command.find("output ")+7,command.find("input")-10-command.find("output "))+"/config_BuildFit.tgz" << endl;
+//use this on lpc  
+file << "transfer_input_files = /uscms/home/z374f439/nobackup/whatever_you_want/sandbox-CMSSW_10_6_5-6403d6f.tar.bz2,"+command.substr(command.find("output ")+7,command.find("input")-10-command.find("output "))+"/config_BuildFit.tgz" << endl;
+  //file << "transfer_input_files = https://stash.osgconnect.net/cms-user/zflowers/public/sandbox-CMSSW_10_6_5-6403d6f.tar.bz2,"+command.substr(command.find("output ")+7,command.find("input")-10-command.find("output "))+"/config_BuildFit.tgz" << endl;
+//use this one on connect 
+// file << "transfer_input_files = /ospool/cms-user/zflowers/public/sandbox-CMSSW_10_6_5-6403d6f.tar.bz2, /home/jsingera/jsingera/CMSSW_10_6_5/src/KUEWKinoAnalysis_treeSysDev/scripts/cmssw_setup_connect.sh,"+command.substr(command.find("output ")+7,command.find("input")-10-command.find("output "))+"/config_BuildFit.tgz" << endl;
+
   file << "should_transfer_files = YES" << endl;
   file << "when_to_transfer_output = ON_EXIT" << endl;
   file << "transfer_output_files = datacards" << endl;
   file << "transfer_output_remaps = \"datacards = "+command.substr(command.find("output ")+7,command.find("input")-10-command.find("output "))+"/datacards"+"\"" << endl;
-  file << "+ProjectName=\"cms.org.ku\""<< endl;
+  file << "+ProjectName=\"cms.org.cern\""<< endl;
   file << "+REQUIRED_OS=\"rhel7\"" << endl;
   file << "+RequiresCVMFS=True" << endl;
   if(CERNqueue != "")

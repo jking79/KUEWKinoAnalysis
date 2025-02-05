@@ -48,8 +48,8 @@ void FitConfiguration::AddCommonSys(ch::CombineHarvester& cb, ProcessList& proce
   cb.SetFlag("filters-use-regex", true);
 
   // signal xsec uncertainty
-  cb.cp().signals()
-    .AddSyst(cb, "sig_xsec", "lnN", SystMap<>::init(1.05));
+//  cb.cp().signals()
+//    .AddSyst(cb, "sig_xsec", "lnN", SystMap<>::init(1.05));
   
   cb.SetFlag("filters-use-regex", false);
 }
@@ -95,6 +95,133 @@ void FitConfiguration::AddFakeLeptonSys(ch::CombineHarvester& cb, ProcessList& p
     .AddSyst(cb, "SIP3D_elf1", "lnN", SystMap<>::init(1.20));
   cb.SetFlag("filters-use-regex", false);
 
+}
+void FitConfiguration::AddSlvrBronGlobal(ch::CombineHarvester& cb, ProcessList& processes){
+cb.SetFlag("filters-use-regex", true);
+//map to all non fake 
+string procNonFake="^(?!.*Fakes).*";
+	cb.cp().bin(VS().a(".*_el.*bron.*")).process(VS().a(procNonFake))
+    .AddSyst(cb, "el_bron", "lnN", SystMap<>::init(1.05));
+
+ cb.cp().bin(VS().a(".*_mu.*bron.*")).process(VS().a(procNonFake))
+    .AddSyst(cb, "mu_bron", "lnN", SystMap<>::init(1.05));
+
+ cb.cp().bin(VS().a(".*_el.*slvr.*")).process(VS().a(procNonFake))
+    .AddSyst(cb, "el_slvr", "lnN", SystMap<>::init(1.05));
+
+  cb.cp().bin(VS().a(".*_mu.*slvr.*")).process(VS().a(procNonFake))
+    .AddSyst(cb, "mu_slvr", "lnN", SystMap<>::init(1.05));
+
+cb.SetFlag("filters-use-regex", false);
+}
+void FitConfiguration::AddFakeGlobal(ch::CombineHarvester& cb, ProcessList& processes, int option){
+ cb.SetFlag("filters-use-regex", true);
+
+   string muf0,muf1,elf0,elf1;
+   string label;
+   if(option == 0){//do global proc mapping
+	muf0=".*_Fakes_.*muf0.*";
+	muf1=".*_Fakes_.*muf1.*";
+	elf0=".*_Fakes_.*elf0.*";
+	elf1=".*_Fakes_.*elf1.*";
+	label = "all_";
+   }
+   if(option == 1){//do ttbar fake proc mapping
+	muf0="ttbar.*_Fakes_.*muf0.*";
+	muf1="ttbar.*_Fakes_.*muf1.*";
+	elf0="ttbar.*_Fakes_.*elf0.*";
+	elf1="ttbar.*_Fakes_.*elf1.*";
+	label = "ttbar_";
+   }
+   if(option == 2){//do !ttbar fake proc mapping
+	muf0="^(?!.*ttbar)(?=.*_Fakes_.*muf0.*).*";
+	muf1="^(?!.*ttbar)(?=.*_Fakes_.*muf1.*).*";
+	elf0="^(?!.*ttbar)(?=.*_Fakes_.*elf0.*).*";
+	elf1="^(?!.*ttbar)(?=.*_Fakes_.*elf1.*).*";
+	label = "other_";
+   }
+
+   cb.cp().backgrounds().process(VS().a(muf0))
+    .AddSyst(cb, label+"Fakes_muf0", "rateParam", SystMap<>::init(1.0));
+
+  cb.cp().backgrounds().process(VS().a(muf1))
+    .AddSyst(cb, label+"Fakes_muf1", "rateParam", SystMap<>::init(1.0));
+
+  cb.cp().backgrounds().process(VS().a(elf0))
+    .AddSyst(cb, label+"Fakes_elf0", "rateParam", SystMap<>::init(1.0));
+
+  cb.cp().backgrounds().process(VS().a(elf1))
+    .AddSyst(cb, label+"Fakes_elf1", "rateParam", SystMap<>::init(1.0));
+
+ cb.SetFlag("filters-use-regex", false);	
+}
+void FitConfiguration::AddIDISObron(ch::CombineHarvester& cb, ProcessList& processes){
+ cb.SetFlag("filters-use-regex", true);
+ cb.cp().bin(VS().a(".*bron.*")).process(VS().a(".*_Fakes_.*muf0B.*"))
+    .AddSyst(cb, "IDISO_muf0", "lnN", SystMap<>::init(1.20));
+
+ cb.cp().bin(VS().a(".*bron.*")).process(VS().a(".*_Fakes_.*muf1B.*"))
+    .AddSyst(cb, "IDISO_muf1", "lnN", SystMap<>::init(1.20));
+
+ cb.cp().bin(VS().a(".*bron.*")).process(VS().a(".*_Fakes_.*elf0B.*"))
+    .AddSyst(cb, "IDISO_elf0", "lnN", SystMap<>::init(1.20));
+
+ cb.cp().bin(VS().a(".*bron.*")).process(VS().a(".*_Fakes_.*elf1B.*"))
+    .AddSyst(cb, "IDISO_elf1", "lnN", SystMap<>::init(1.20));
+ cb.SetFlag("filters-use-regex", false);
+}
+void FitConfiguration::AddSIP3Dslvr(ch::CombineHarvester& cb, ProcessList& processes){
+ cb.SetFlag("filters-use-regex", true);
+ cb.cp().bin(VS().a(".*slvr.*")).process(VS().a(".*_Fakes_.*muf0S.*"))
+    .AddSyst(cb, "SIP3D_muf0", "lnN", SystMap<>::init(1.20));
+
+  cb.cp().bin(VS().a(".*slvr.*")).process(VS().a(".*_Fakes_.*muf1S.*"))
+    .AddSyst(cb, "SIP3D_muf1", "lnN", SystMap<>::init(1.20));
+
+  cb.cp().bin(VS().a(".*slvr.*")).process(VS().a(".*_Fakes_.*elf0S.*"))
+    .AddSyst(cb, "SIP3D_elf0", "lnN", SystMap<>::init(1.20));
+
+  cb.cp().bin(VS().a(".*slvr.*")).process(VS().a(".*_Fakes_.*elf1S.*"))
+    .AddSyst(cb, "SIP3D_elf1", "lnN", SystMap<>::init(1.20));
+ cb.SetFlag("filters-use-regex", false);
+}
+void FitConfiguration::AddIDISObron_splitSJet(ch::CombineHarvester& cb, ProcessList& processes){
+ cb.SetFlag("filters-use-regex", true);
+  
+  std::map<string, VS> SJets;
+  SJets["1L_0jS"] = VS().a(".*1L.*.*bron.*.*0j.*S_.*");
+  SJets["1L_1jS"] = VS().a(".*1L.*.*bron.*.*1j.*S_.*");
+  SJets["1L_2jS"] = VS().a(".*1L.*.*bron.*.*2j.*S_.*");
+  SJets["1L_3jS"] = VS().a(".*1L.*.*bron.*.*3j.*S_.*");
+  SJets["1L_4jS"] = VS().a(".*1L.*.*bron.*.*4j.*S_.*");
+  SJets["2L_0jS"] = VS().a(".*2L.*.*bron.*.*0j.*S_.*");
+  SJets["2L_1jS"] = VS().a(".*2L.*.*bron.*.*1j.*S_.*");
+  SJets["2L_2jS"] = VS().a(".*2L.*.*bron.*.*2j.*S_.*");
+  SJets["2L_3jS"] = VS().a(".*2L.*.*bron.*.*3j.*S_.*");
+  SJets["3L_0jS"] = VS().a(".*3L.*.*bron.*.*0j.*S_.*");
+  SJets["3L_1jS"] = VS().a(".*3L.*.*bron.*.*1j.*S_.*");
+  for(auto s : SJets){
+    string name = "IDISO_elf1_" + s.first;
+    cb.cp().bin(s.second).process(VS().a(".*_Fakes_.*elf1B.*"))
+    .AddSyst(cb, name, "lnN", SystMap<>::init(1.20));
+  }
+ for(auto s : SJets){
+    string name = "IDISO_elf0_" + s.first;
+    cb.cp().bin(s.second).process(VS().a(".*_Fakes_.*elf0B.*"))
+    .AddSyst(cb, name, "lnN", SystMap<>::init(1.20));
+  }
+ for(auto s : SJets){
+    string name = "IDISO_muf1_" + s.first;
+    cb.cp().bin(s.second).process(VS().a(".*_Fakes_.*muf1B.*"))
+    .AddSyst(cb, name, "lnN", SystMap<>::init(1.20));
+  }
+ for(auto s : SJets){
+    string name = "IDISO_muf0_" + s.first;
+    cb.cp().bin(s.second).process(VS().a(".*_Fakes_.*muf0B.*"))
+    .AddSyst(cb, name, "lnN", SystMap<>::init(1.20));
+  }
+
+ cb.SetFlag("filters-use-regex", false);
 }
 
 void FitConfiguration::AddCommonBJetSys(ch::CombineHarvester& cb, ProcessList& processes){
@@ -269,7 +396,7 @@ void FitConfiguration::AddSVSys(ch::CombineHarvester& cb, ProcessList& processes
   cb.SetFlag("filters-use-regex", false);
 }
 
-void FitConfiguration::Add0LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label){
+void FitConfiguration::Add0LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig){
   cb.SetFlag("filters-use-regex", true);
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*0L.*.*0j.*S_.*.*PTISR1.*"))
@@ -290,11 +417,32 @@ void FitConfiguration::Add0LPTISRSys(ch::CombineHarvester& cb, ProcessList& proc
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*0L.*.*5j.*S_.*.*PTISR1.*"))
     .AddSyst(cb, label+"PTISR_0L_5jS", "lnN", SystMap<>::init(1.20));
 
+  if(applyToSig){
+	cb.cp().signals().bin(VS().a(".*0L.*.*0j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_0jS", "lnN", SystMap<>::init(1.20));
+
+	cb.cp().signals().bin(VS().a(".*0L.*.*1j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_1jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*0L.*.*2j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_2jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*0L.*.*3j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_3jS", "lnN", SystMap<>::init(1.20));
+  
+  	cb.cp().signals().bin(VS().a(".*0L.*.*4j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_4jS", "lnN", SystMap<>::init(1.20));
+  
+  	cb.cp().signals().bin(VS().a(".*0L.*.*5j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_0L_5jS", "lnN", SystMap<>::init(1.20));
+
+  }
+  
 
   cb.SetFlag("filters-use-regex", false);
 }
 
-void FitConfiguration::Add1LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label){
+void FitConfiguration::Add1LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig){
   cb.SetFlag("filters-use-regex", true);
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*1L.*.*0j.*S_.*.*PTISR1.*"))
@@ -313,10 +461,55 @@ void FitConfiguration::Add1LPTISRSys(ch::CombineHarvester& cb, ProcessList& proc
     .AddSyst(cb, label+"PTISR_1L_4jS", "lnN", SystMap<>::init(1.20));
 
 
+  if(applyToSig){
+	cb.cp().signals().bin(VS().a(".*1L.*.*0j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_1L_0jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*1j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_1L_1jS", "lnN", SystMap<>::init(1.20));
+
+ 	cb.cp().signals().bin(VS().a(".*1L.*.*2j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_1L_2jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*3j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_1L_3jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*4j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_1L_4jS", "lnN", SystMap<>::init(1.20));
+ 
+  }
+
+  cb.SetFlag("filters-use-regex", false);
+}
+void FitConfiguration::Add2LPTISRSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig){
+  cb.SetFlag("filters-use-regex", true);
+
+  cb.cp().process(processes.GetProcesses()).bin(VS().a(".*2L.*.*0j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_0jS", "lnN", SystMap<>::init(1.20));
+
+  cb.cp().process(processes.GetProcesses()).bin(VS().a(".*2L.*.*1j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_1jS", "lnN", SystMap<>::init(1.20));
+
+  cb.cp().process(processes.GetProcesses()).bin(VS().a(".*2L.*.*2j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_2jS", "lnN", SystMap<>::init(1.20));
+
+  if(applyToSig){
+	cb.cp().signals().bin(VS().a(".*2L.*.*0j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_0jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*2L.*.*1j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_1jS", "lnN", SystMap<>::init(1.20));
+
+ 	cb.cp().signals().bin(VS().a(".*2L.*.*2j.*S_.*.*PTISR1.*"))
+    .AddSyst(cb, label+"PTISR_2L_2jS", "lnN", SystMap<>::init(1.20));
+
+  }
+
   cb.SetFlag("filters-use-regex", false);
 }
 
-void FitConfiguration::AddCommongamTSys(ch::CombineHarvester& cb, ProcessList& processes){
+
+void FitConfiguration::AddCommongamTSys(ch::CombineHarvester& cb, ProcessList& processes,  bool applyToSig){
   cb.SetFlag("filters-use-regex", true);
 
   cb.cp().backgrounds().bin(VS().a(".*2L.*.*0j.*S_.*.*gamT1.*"))
@@ -328,10 +521,21 @@ void FitConfiguration::AddCommongamTSys(ch::CombineHarvester& cb, ProcessList& p
   cb.cp().backgrounds().bin(VS().a(".*2L.*.*2j.*S_.*.*gamT1.*"))
     .AddSyst(cb, "gamT_2L_2jS", "lnN", SystMap<>::init(1.20));
 
+  if(applyToSig){
+    cb.cp().signals().bin(VS().a(".*2L.*.*0j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, "gamT_2L_0jS", "lnN", SystMap<>::init(1.20));
+
+    cb.cp().signals().bin(VS().a(".*2L.*.*1j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, "gamT_2L_1jS", "lnN", SystMap<>::init(1.20));
+
+    cb.cp().signals().bin(VS().a(".*2L.*.*2j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, "gamT_2L_2jS", "lnN", SystMap<>::init(1.20));
+  }
+
   cb.SetFlag("filters-use-regex", false);
 }
 
-void FitConfiguration::Add0LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label){
+void FitConfiguration::Add0LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig){
   cb.SetFlag("filters-use-regex", true);
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*0L.*.*2j.*S_.*.*gamT1.*"))
@@ -345,12 +549,26 @@ void FitConfiguration::Add0LgamTSys(ch::CombineHarvester& cb, ProcessList& proce
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*0L.*.*5j.*S_.*.*gamT1.*"))
     .AddSyst(cb, label+"gamT_0L_5jS", "lnN", SystMap<>::init(1.20));
+ 
+  if(applyToSig){
+    cb.cp().signals().bin(VS().a(".*0L.*.*2j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_0L_2jS", "lnN", SystMap<>::init(1.20));
+
+    cb.cp().signals().bin(VS().a(".*0L.*.*3j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_0L_3jS", "lnN", SystMap<>::init(1.20));
+
+    cb.cp().signals().bin(VS().a(".*0L.*.*4j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_0L_4jS", "lnN", SystMap<>::init(1.20));
+
+    cb.cp().signals().bin(VS().a(".*0L.*.*5j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_0L_5jS", "lnN", SystMap<>::init(1.20));	
+  }
 
 
   cb.SetFlag("filters-use-regex", false);
 }
 
-void FitConfiguration::Add1LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label){
+void FitConfiguration::Add1LgamTSys(ch::CombineHarvester& cb, ProcessList& processes, string label, bool applyToSig){
   cb.SetFlag("filters-use-regex", true);
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*1L.*.*1j.*S_.*.*gamT1.*"))
@@ -364,6 +582,20 @@ void FitConfiguration::Add1LgamTSys(ch::CombineHarvester& cb, ProcessList& proce
 
   cb.cp().process(processes.GetProcesses()).bin(VS().a(".*1L.*.*4j.*S_.*.*gamT1.*"))
     .AddSyst(cb, label+"gamT_1L_4jS", "lnN", SystMap<>::init(1.20));
+
+  if(applyToSig){
+	cb.cp().signals().bin(VS().a(".*1L.*.*1j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_1L_1jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*2j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_1L_2jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*3j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_1L_3jS", "lnN", SystMap<>::init(1.20));
+
+  	cb.cp().signals().bin(VS().a(".*1L.*.*4j.*S_.*.*gamT1.*"))
+    .AddSyst(cb, label+"gamT_1L_4jS", "lnN", SystMap<>::init(1.20));
+  }
 
 
   cb.SetFlag("filters-use-regex", false);
@@ -501,7 +733,7 @@ void FitConfiguration::initSystDictTtbar( SystDict& sd){
 //	std::cout<<"init ttbar end"<<std::endl;
 	
 }
-void FitConfiguration::AddNormHierarchy( SystDict& sd, VS& proc, ch::CombineHarvester& cb, ProcessList& processes){
+void FitConfiguration::AddNormHierarchy( SystDict& sd, VS& proc, ch::CombineHarvester& cb, ProcessList& processes, bool applyToSig){
 	cb.SetFlag("filters-use-regex", true);
 	//create standard string mapping
 	std::map<int, string> Lmap;
@@ -565,6 +797,9 @@ void FitConfiguration::AddNormHierarchy( SystDict& sd, VS& proc, ch::CombineHarv
 			paramInit = 1.2;
 		}
 		cb.cp().process(plist.GetProcesses()).bin(VS(systRegex)).AddSyst(cb, s.first , paramType , SystMap<>::init(paramInit));
+		if(applyToSig){
+			cb.cp().signals().bin(VS(systRegex)).AddSyst(cb, s.first , paramType , SystMap<>::init(paramInit));
+		}	
 			
 		systRegex.clear();
 	}
@@ -594,6 +829,7 @@ for(auto s : Nlep){
 	string name = "norm_" + label + s;
 	systRegex.a( Lmap[s] );
 	cb.cp().process(plist.GetProcesses()).bin(VS(systRegex)).AddSyst(cb, name, "lnN", SystMap<>::init(errorInit));
+	systRegex.clear();
 }
 
 
@@ -683,12 +919,120 @@ void FitConfiguration::AddSJetNormSys(const string& label, VS& procs, ch::Combin
    
   cb.SetFlag("filters-use-regex", false);
 }
-
-void FitConfiguration::AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT){
+void FitConfiguration::AddCombinedShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT, ProcessList& plist, std::string name, double scale, ProcessType ptype){
   cb.SetFlag("filters-use-regex", true);
+  
+  ProcessList processes = plist;
+  int Nproc = processes.GetN();
+  ProcessList validProcesses;
 
-  ProcessList processes = FIT.GetProcesses();
-  processes = processes.Filter(kBkg);
+  for(int ip = 0; ip < Nproc; ip++){
+    Process p = processes[ip]; 
+    if(FIT.HasSystematic(p, sys))
+    {
+	validProcesses += p;
+    }
+  }
+  int NvalidProc = validProcesses.GetN();
+
+   string label = "norm_"+sys.Label();
+//      std::cout<<"label: "<<label<<"\n";
+//
+    if(name != "")
+      label = "norm_"+name;
+
+
+	
+  CategoryList categories = FIT.GetCategories();
+  VS channels = FIT.GetChannels();
+  int Ncat  = categories.GetN();
+
+  // prepare channels/categories
+  map<string,CategoryList> chanMap;
+  for(auto c : channels)
+    chanMap[c] = categories.Filter(c);
+  categories.Clear();
+  for(auto c : channels)
+    categories += chanMap[c];
+
+  std::vector<double> nomInt{};
+  std::vector<double> upInt{};
+  std::vector<double> dnInt{};
+  double nomInt_tot=0.; 
+  double upInt_tot=0.;
+  double dnInt_tot=0.;
+  //loop over categories, aggregate process integrals present in that category
+  for(int ic = 0; ic < Ncat; ic++){
+      Category c = categories[ic];
+      for(int ip = 0; ip < NvalidProc; ip++){
+	 Process p =validProcesses[ip];
+
+  
+      if(!FIT.IsThere(c, p) ||
+         !FIT.IsThere(c, p, sys)){
+//      std::cout<<"is there continue\n";
+        continue;
+
+        }
+
+      double nom = FIT.Integral(c, p);
+	//cout << "nom: " << nom << endl;
+         if(nom <= 0.){
+	//      std::cout<<"nom <=0 continue\n";
+         continue;
+        }
+        double up  = FIT.Integral(c, p, sys.Up());
+	//cout << "up: " << up << endl;     
+	 double dn  = FIT.Integral(c, p, sys.Down());
+	//cout << "down: " << dn << endl;
+	nomInt.push_back(nom);
+	upInt.push_back(up);
+	dnInt.push_back(dn);
+	}//end proc loop
+
+	//add up all integrals to compute err
+	for(int i=0; i<nomInt.size(); i++){
+		nomInt_tot += nomInt[i];
+		upInt_tot += upInt[i];
+		dnInt_tot += dnInt[i];
+	}
+	double err = 1. + (upInt_tot-dnInt_tot)/(upInt_tot+dnInt_tot);
+	std::cout<<"Cat combined Integrals (nom,up,dn,err) "<< nomInt_tot <<" "<< upInt_tot <<" "<< dnInt_tot<<" "<< err <<"\n";
+	//add the nuisance for this cat
+	if( err> 0.01 && err<1.99 ){
+		cb.cp().backgrounds().bin(VS().a(c.FullLabel())).AddSyst(cb, label, "lnN", SystMap<>::init(err));
+	}
+	else{
+		std::cout<<"bad err value continue\n";
+	}
+	//reset parameters for next category
+	nomInt.clear();
+	upInt.clear();
+	dnInt.clear();
+	nomInt_tot=0.;
+	upInt_tot=0.;
+	dnInt_tot=0.;
+
+  }//end cat loop
+
+  cb.SetFlag("filters-use-regex", false);
+}
+
+//void FitConfiguration::AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT, std::string name, double scale, ProcessType procSet ){
+void FitConfiguration::AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarvester& cb, FitReader& FIT, ProcessList& plist, std::string name, double scale, ProcessType ptype){
+  
+  cb.SetFlag("filters-use-regex", true);
+   //std::cout<<"in shape to norm\n";
+  // ProcessList processes = FIT.GetProcesses();
+  ProcessList processes = plist;
+  //processes = processes.Filter(kBkg);
+  //processes = processes.Filter(procSet);
+//  processes = processes.Filter("TChiWZ_3000270");
+  //if kSig then remove the genMET procs
+//  if(procSet == kSig ){
+//	processes = processes.Remove("METUncer_GenMET");
+//  }
+
   CategoryList categories = FIT.GetCategories();
   VS channels = FIT.GetChannels();
 
@@ -707,39 +1051,86 @@ void FitConfiguration::AddShapeSysAsNorm(const Systematic& sys, ch::CombineHarve
     Process p = processes[ip];
     
     if(!FIT.HasSystematic(p, sys))
+    {
+     // std::cout<<"Has continue\n";
       continue;
+    }
 
     for(int ic = 0; ic < Ncat; ic++){
       Category c = categories[ic];
 
       if(!FIT.IsThere(c, p) ||
-	 !FIT.IsThere(c, p, sys))
+	 !FIT.IsThere(c, p, sys)){
+//	std::cout<<"is there continue\n";
 	continue;
+
+	}
       
       double nom = FIT.Integral(c, p);
 //cout << "nom: " << nom << endl;
-      if(nom <= 0.) continue;
+      if(nom <= 0.){
+//	std::cout<<"nom <=0 continue\n";
+	 continue;
+	}
 //cout << "cat: " << c.FullLabel() << " proc: " << p.Name() << " sys: " << sys.Label() << endl;      
       double up  = FIT.Integral(c, p, sys.Up());
 //cout << "up: " << up << endl;     
  double dn  = FIT.Integral(c, p, sys.Down());
 //cout << "down: " << dn << endl;     
       double err = up - dn;
-//     cout << "up: " << up << " down: " << dn << " err: " << err << endl; 
+ //    cout << "up: " << up << " down: " << dn << " err: " << err << endl; 
 //      if(fabs(err) < fabs(up-nom)) err = up - nom;
 //      if(fabs(err) < fabs(nom-dn)) err = nom - dn;
 
 //     cout << "1 err: " << err << endl;
       //err = 1. + err/2./nom;
-       err =1. + (up-dn)/(up+dn);
-//     cout << "2 err: " << err << endl;
-      if(err > 0.)
-      cb.cp().process(VS().a(p.Name())).bin(VS().a(c.FullLabel()))
-	.AddSyst(cb, "norm_"+sys.Label(), "lnN", SystMap<>::init(err));
+      double fractionalError = (up-dn)/(up+dn);
+      //double GenMETscale=1.;
+      //if( sys.Label() == "METUncer_GenMET" ){
+		//std::cout<<"rescaling GenMET from with scale: "<<GenMETscale<<" "<<fractionalError<<" ";
+//		fractionalError = GenMETscale*fractionalError;	
+		//std::cout<<fractionalError<<"\n";
+//	} 
+      err =1. + fractionalError;
 
-    }
-  }
-  
+	//safety check on very small or very large err
+	if( err < 0.01  || err > 1.99 ){
+		std::cout<<"continue err bad "<<err<<"\n";
+		continue;
+	} 
+//     cout << "2 err: " << err << endl;
+      	string label = "norm_"+sys.Label();
+//	std::cout<<"label: "<<label<<"\n";
+//
+	if(name != "")
+		label = "norm_"+name;
+		
+	if(scale > 0.)
+		err *= scale;
+	if(err > 0.){
+//	 std::cout<<"err > 0 adding systematic\n";
+//	std::cout<<"pname "<<p.Name()<<" bin "<<c.FullLabel()<<"err "<<err <<"\n";
+//	std::cout<<"trimming name";
+//	std::string testName = "TChiWZ_";
+	if(ptype == 0){
+		cb.cp().process(VS().a(p.Name())).bin(VS().a(c.FullLabel()))
+		.AddSyst(cb, label, "lnN", SystMap<>::init(err));
+	}
+	if(ptype == 1){
+		//tokenize signal name for data card association
+		std::stringstream iss(p.Name());
+		std::string token;
+		std::getline(iss,token,'_');
+		token = token+"_";
+		label = token+label;
+		cb.cp().process(VS().a(token)).bin(VS().a(c.FullLabel()))
+		.AddSyst(cb, label, "lnN", SystMap<>::init(err));
+	}
+	
+
+    }//if err > 0
+  }//end cat loop
+ }//end proc loop 
   cb.SetFlag("filters-use-regex", false);
 }
 
